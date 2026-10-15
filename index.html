@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Matching - Dashboard</title>
+<style>
+/* =========================================================
+   CSS DASHBOARD MONITORING INVOICE
+   APEX: tempel bagian ini ke Page > CSS > Inline
+   (atau Shared Components > Static Application Files).
+   Bagian "MOCKUP SHELL" tidak perlu di APEX karena
+   header & sidebar sudah disediakan Universal Theme.
+   ========================================================= */
+:root{
+  --dmi-green:#2e7d4f;  --dmi-green-bg:#f1f9f4;
+  --dmi-teal:#1f7a75;   --dmi-teal-bg:#eef8f7;
+  --dmi-purple:#7a4bb5; --dmi-purple-bg:#f6f2fb;
+  --dmi-blue:#1e63b0;   --dmi-blue-bg:#f1f6fc;
+  --dmi-red:#c94040;    --dmi-red-bg:#fdf3f3;
+  --dmi-border:#e3e6ea;
+  --dmi-text:#262626;
+  --dmi-muted:#606770;
+  --dmi-head:#1e63b0;
+}
+
+/* ---------- MOCKUP SHELL (tidak dipakai di APEX) ---------- */
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:13px;color:var(--dmi-text);background:#f5f6f7}
+.shell-header{height:44px;background:#0a72d8;color:#fff;display:flex;align-items:center;padding:0 12px;gap:12px;position:sticky;top:0;z-index:10}
+.shell-header .burger{width:30px;height:30px;border:0;background:rgba(255,255,255,.15);color:#fff;border-radius:3px;cursor:pointer;font-size:16px}
+.shell-header .app-title{font-size:16px}
+.shell-header .user{margin-left:auto;font-size:12px;opacity:.95}
+.shell-body{display:flex;min-height:calc(100vh - 44px)}
+.shell-nav{width:220px;background:#29333d;flex-shrink:0;transition:width .2s}
+.shell-nav.collapsed{width:0;overflow:hidden}
+.shell-nav a{display:flex;align-items:center;gap:10px;padding:12px 14px;color:#e6e9ec;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap}
+.shell-nav a.active{background:#1b2229;border-left:3px solid #0a72d8;padding-left:11px}
+.shell-nav a:hover{background:#323d48}
+.shell-nav svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6}
+.shell-main{flex:1;min-width:0;background:#fff;padding:18px 16px 24px}
+
+/* ---------- KONTEN DASHBOARD (dipakai di APEX) ---------- */
+.dmi-title{font-size:22px;font-weight:700;letter-spacing:.2px;margin:0 0 10px;color:#1d1d1d}
+.dmi-section-label{font-size:11px;font-weight:600;color:var(--dmi-muted);letter-spacing:.4px;margin:22px 0 10px 12px}
+
+.dmi-cards{display:grid;gap:14px}
+.dmi-cards.cols-3{grid-template-columns:repeat(3,1fr)}
+.dmi-cards.cols-2{grid-template-columns:repeat(2,1fr)}
+
+.dmi-card{position:relative;display:flex;justify-content:space-between;align-items:center;
+  min-height:88px;padding:14px 16px;border:1px solid var(--dmi-border);border-left:4px solid var(--c);
+  background:var(--bg);border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.dmi-card .lbl{font-size:10.5px;font-weight:700;letter-spacing:.4px;color:var(--c);text-transform:uppercase;line-height:1.6}
+.dmi-card .val{font-size:30px;font-weight:700;color:var(--c);line-height:1.15;margin-top:4px}
+.dmi-card .ico{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.12);flex-shrink:0}
+.dmi-card .ico svg{width:22px;height:22px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+.dmi-green {--c:var(--dmi-green); --bg:var(--dmi-green-bg)}
+.dmi-teal  {--c:var(--dmi-teal);  --bg:var(--dmi-teal-bg)}
+.dmi-purple{--c:var(--dmi-purple);--bg:var(--dmi-purple-bg)}
+.dmi-blue  {--c:var(--dmi-blue);  --bg:var(--dmi-blue-bg)}
+.dmi-red   {--c:var(--dmi-red);   --bg:var(--dmi-red-bg)}
+
+/* Panel detail: filter + tab dalam satu blok
+   APEX: region induk Template "Standard" (judul: Detail Upload Dokumen) */
+.dmi-panel{margin-top:22px;border:1px solid var(--dmi-border);border-radius:6px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.dmi-panel-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--dmi-border)}
+.dmi-panel-head h2{margin:0;font-size:15px;font-weight:700;color:#1d1d1d}
+.dmi-chip{font-size:11.5px;font-weight:600;color:var(--dmi-blue);background:var(--dmi-blue-bg);border:1px solid #d4e3f5;
+  padding:3px 10px;border-radius:12px}
+.dmi-panel-body{padding:14px 16px 16px}
+
+.dmi-filters{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin:0 0 16px}
+.dmi-field{display:flex;flex-direction:column;gap:5px}
+.dmi-field label{font-size:11.5px;font-weight:600;color:var(--dmi-muted)}
+.dmi-filters select{width:240px;max-width:100%;height:38px;padding:0 10px;border:1px solid #cfd3d7;border-radius:4px;background:#fff;
+  font-size:13px;color:var(--dmi-text)}
+.dmi-filters select:focus{outline:2px solid #b9d3f0;border-color:var(--dmi-blue)}
+.dmi-link{height:38px;border:0;background:none;color:var(--dmi-blue);font-size:12.5px;font-weight:600;cursor:pointer;padding:0 6px}
+.dmi-link:hover{text-decoration:underline}
+.dmi-link[hidden]{display:none}
+
+/* Grid ala Interactive Report */
+.dmi-report{border:1px solid var(--dmi-border);border-radius:4px;background:#fff}
+.dmi-toolbar{padding:8px 10px;background:#f7f8f9;border-bottom:1px solid var(--dmi-border)}
+.dmi-btn{height:28px;padding:0 10px;border:1px solid #cfd3d7;border-radius:4px;background:#fff;font-size:12px;cursor:pointer}
+.dmi-btn:hover{background:#f0f2f4}
+.dmi-table-wrap{overflow-x:auto}
+.dmi-table{width:100%;border-collapse:collapse;font-size:12px}
+.dmi-table th{color:var(--dmi-head);font-weight:600;font-size:11.5px;padding:12px 10px;border-bottom:1px solid var(--dmi-border);
+  border-right:1px solid var(--dmi-border);background:#fff;white-space:nowrap}
+.dmi-table td{padding:8px 10px;border-bottom:1px solid #eef0f2;border-right:1px solid var(--dmi-border);white-space:nowrap}
+.dmi-table th:last-child,.dmi-table td:last-child{border-right:0}
+.dmi-table tbody tr:hover td{background:#f7fafd}
+.dmi-table .r{text-align:right}.dmi-table .c{text-align:center}
+.dmi-table tr.total td{font-weight:700;background:#fafbfc}
+.dmi-pager{text-align:right;padding:10px 14px;font-size:11px;color:var(--dmi-muted)}
+
+/* Tab pengganti tampilan grid
+   APEX: Region induk dengan Template "Tabs Container",
+   tiap tab = sub-region Interactive Report. */
+.dmi-tabs{display:flex;gap:4px;border-bottom:2px solid var(--dmi-border);margin:0 0 -1px}
+.dmi-tab{display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:1px solid transparent;border-bottom:0;
+  border-radius:6px 6px 0 0;background:transparent;color:var(--dmi-muted);font-size:12.5px;font-weight:600;cursor:pointer;
+  position:relative;top:2px}
+.dmi-tab:hover{color:var(--dmi-blue);background:#f5f8fc}
+.dmi-tab.active{background:#fff;color:var(--dmi-blue);border-color:var(--dmi-border);border-bottom:2px solid #fff}
+.dmi-tab.active::before{content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:3px;background:var(--dmi-blue);border-radius:6px 6px 0 0}
+.dmi-tab .badge{min-width:22px;height:18px;padding:0 6px;border-radius:9px;background:#e9edf2;color:var(--dmi-muted);
+  font-size:10.5px;display:inline-flex;align-items:center;justify-content:center}
+.dmi-tab.active .badge{background:var(--dmi-blue);color:#fff}
+.dmi-tabpanel{display:none}
+.dmi-tabpanel.active{display:block}
+.dmi-tabpanel .dmi-report{border-top-left-radius:0}
+
+/* Kartu yang bisa diklik */
+.dmi-card.is-link{cursor:pointer;transition:box-shadow .15s, transform .15s}
+.dmi-card.is-link:hover,.dmi-card.is-link:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.10);transform:translateY(-1px);outline:none}
+.dmi-card .more{font-size:11px;font-weight:600;color:var(--c);opacity:0;margin-top:2px;transition:opacity .15s}
+.dmi-card.is-link:hover .more,.dmi-card.is-link:focus-visible .more{opacity:.85}
+
+/* Popup detail
+   APEX: region dengan Template "Inline Dialog" (Static ID: success_dlg / failed_dlg)
+   berisi Interactive Report, dibuka lewat Dynamic Action: apex.theme.openRegion('success_dlg') */
+.dmi-overlay{position:fixed;inset:0;background:rgba(20,28,38,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.dmi-overlay.open{display:flex}
+.dmi-dialog{background:#fff;border-radius:8px;width:min(1100px,100%);max-height:90vh;display:flex;flex-direction:column;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);border-top:4px solid var(--c)}
+.dmi-dialog-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--dmi-border)}
+.dmi-dialog-head h2{margin:0;font-size:16px;color:var(--c)}
+.dmi-dialog-head .sub{font-size:12px;color:var(--dmi-muted)}
+.dmi-dialog-head .close{margin-left:auto;width:32px;height:32px;border:0;background:transparent;font-size:22px;color:var(--dmi-muted);cursor:pointer;border-radius:4px}
+.dmi-dialog-head .close:hover{background:#f0f2f4}
+.dmi-dialog-tools{display:flex;gap:10px;align-items:center;padding:10px 18px;background:#f7f8f9;border-bottom:1px solid var(--dmi-border)}
+.dmi-dialog-tools input{flex:1;max-width:320px;height:32px;padding:0 10px;border:1px solid #cfd3d7;border-radius:4px;font-size:12.5px}
+.dmi-dialog-body{overflow:auto;flex:1}
+.dmi-dialog-body .dmi-table th{position:sticky;top:0;z-index:1}
+.dmi-dialog-foot{padding:10px 18px;border-top:1px solid var(--dmi-border);font-size:11.5px;color:var(--dmi-muted);display:flex;justify-content:space-between}
+.dmi-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.dmi-pill.ok{background:#e3f4ea;color:var(--dmi-green)}
+.dmi-pill.err{background:#fbe5e5;color:var(--dmi-red)}
+
+@media (max-width:900px){
+  .dmi-cards.cols-3,.dmi-cards.cols-2{grid-template-columns:1fr}
+  .dmi-filters{flex-direction:column}
+  .dmi-filters select{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= MOCKUP SHELL: Header (APEX: sudah dari Universal Theme) ================= -->
+<header class="shell-header">
+  <button class="burger" onclick="document.getElementById('nav').classList.toggle('collapsed')" aria-label="Menu">&#9776;</button>
+  <span class="app-title">Invoice Matching</span>
+  <span class="user">&#128100; itmppa &#9662;</span>
+</header>
+
+<div class="shell-body">
+  <!-- ================= MOCKUP SHELL: Navigation Menu (APEX: Shared Components > Navigation Menu) ================= -->
+  <nav class="shell-nav" id="nav">
+    <a href="#" class="active"><svg viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M8 13h8M8 17h8"/></svg>Dashboard</a>
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M8 13h8M8 17h8"/></svg>Data PO Success</a>
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M8 13h8M8 17h8"/></svg>Data PO Failed</a>
+  </nav>
+
+  <main class="shell-main">
+
+    <!-- ===== APEX Region 1: Static Content (Template: Blank with Attributes) ===== -->
+    <h1 class="dmi-title">DASHBOARD MONITORING INVOICE</h1>
+
+    <!-- ===== APEX Region 2: Summary cards
+         Disarankan: Dynamic Content (PL/SQL) yang mengembalikan HTML ini,
+         nilai angka diganti hasil query. ===== -->
+    <div class="dmi-cards cols-3">
+      <div class="dmi-card dmi-green">
+        <div><div class="lbl">Supplier Join</div><div class="val" id="v_supplier">3</div></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.5 1.9 5 5"/></svg></div>
+      </div>
+      <div class="dmi-card dmi-teal">
+        <div><div class="lbl">Total File Upload<br>(INV,KWT,PO,RGN,FP)</div><div class="val" id="v_file">48,017</div></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="8" y="3" width="11" height="14" rx="1.5"/><path d="M5 7v12.5A1.5 1.5 0 0 0 6.5 21H15"/><path d="M11 8h5M11 11h5M11 14h3"/></svg></div>
+      </div>
+      <div class="dmi-card dmi-purple">
+        <div><div class="lbl">Data PO Matching</div><div class="val" id="v_matching">8,253</div></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></svg></div>
+      </div>
+    </div>
+
+    <div class="dmi-section-label">DAILY PROGRESS</div>
+
+    <!-- ===== APEX Region 3: Daily progress cards (Dynamic Content) ===== -->
+    <div class="dmi-cards cols-2">
+      <div class="dmi-card dmi-blue is-link" data-detail="success" role="button" tabindex="0" aria-haspopup="dialog">
+        <div><div class="lbl">PO Success Upload</div><div class="val" id="v_success">100</div><div class="more">Lihat detail &rsaquo;</div></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V14"/></svg></div>
+      </div>
+      <div class="dmi-card dmi-red is-link" data-detail="failed" role="button" tabindex="0" aria-haspopup="dialog">
+        <div><div class="lbl">PO Failed Upload</div><div class="val" id="v_failed">5</div><div class="more">Lihat detail &rsaquo;</div></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 5v9"/><circle cx="12" cy="18.5" r=".6" fill="currentColor"/></svg></div>
+      </div>
+    </div>
+
+    <!-- ===== APEX Region 4: Panel "Detail Upload Dokumen" (Template: Standard)
+         Berisi region filter (4-F) dan Tabs Container (4-T). ===== -->
+    <section class="dmi-panel">
+    <div class="dmi-panel-head">
+      <h2>Detail Upload Dokumen</h2>
+      <span class="dmi-chip" id="period_chip">Periode: Semua</span>
+    </div>
+    <div class="dmi-panel-body">
+
+    <!-- ===== APEX Region 4-F: Filter (Template: Blank with Attributes)
+         Page Items Select List P1_MONTH & P1_YEAR, Null Display Value "Semua Bulan"/"Semua Tahun".
+         Dynamic Action Change -> Refresh ketiga IR (tanpa submit page). ===== -->
+    <div class="dmi-filters">
+      <div class="dmi-field">
+        <label for="P1_MONTH">Bulan</label>
+        <select id="P1_MONTH"><option value="">Semua Bulan</option></select>
+      </div>
+      <div class="dmi-field">
+        <label for="P1_YEAR">Tahun</label>
+        <select id="P1_YEAR"><option value="">Semua Tahun</option></select>
+      </div>
+      <button class="dmi-link" id="btn_reset" hidden>Reset filter</button>
+    </div>
+
+    <!-- ===== APEX Region 4-T: Template "Tabs Container"
+         Sub-region 4a, 4b, 4c = Interactive Report masing-masing.
+         Toolbar "Actions" & paging dibuat otomatis oleh IR. ===== -->
+    <div class="dmi-tabs" role="tablist">
+      <button class="dmi-tab active" role="tab" data-target="tab_rekap">Per Supplier <span class="badge" id="badge_rekap"></span></button>
+      <button class="dmi-tab" role="tab" data-target="tab_kode">Per Kode Supplier <span class="badge" id="badge_kode"></span></button>
+      <button class="dmi-tab" role="tab" data-target="tab_bulan">Per Bulan <span class="badge" id="badge_bulan"></span></button>
+    </div>
+
+    <!-- Sub-region 4a: Detail per kode supplier -->
+    <div class="dmi-tabpanel" id="tab_kode" role="tabpanel">
+      <div class="dmi-report">
+        <div class="dmi-toolbar"><button class="dmi-btn">Actions &#9662;</button></div>
+        <div class="dmi-table-wrap">
+          <table class="dmi-table">
+            <thead>
+              <tr>
+                <th class="c" style="width:19%">Supplier Number</th>
+                <th class="c">Supplier Name</th>
+                <th class="c" style="width:24%">Total Dokumen Upload</th>
+                <th class="c" style="width:20%">Total Amount</th>
+              </tr>
+            </thead>
+            <tbody id="detail_body"></tbody>
+          </table>
+        </div>
+        <div class="dmi-pager" id="detail_pager"></div>
+      </div>
+    </div>
+
+    <!-- Sub-region 4b: Per supplier (gabungan semua kode) — tab pertama -->
+    <!-- (urutan tab di APEX = Sequence sub-region: Per Supplier, Per Kode Supplier, Per Bulan) -->
+    <div class="dmi-tabpanel active" id="tab_rekap" role="tabpanel">
+      <div class="dmi-report">
+        <div class="dmi-toolbar"><button class="dmi-btn">Actions &#9662;</button></div>
+        <div class="dmi-table-wrap">
+          <table class="dmi-table">
+            <thead>
+              <tr>
+                <th class="c">Supplier Name</th>
+                <th class="c" style="width:28%">Total Dokumen Upload</th>
+                <th class="c" style="width:26%">Total Amount</th>
+              </tr>
+            </thead>
+            <tbody id="rekap_body"></tbody>
+          </table>
+        </div>
+        <div class="dmi-pager" id="rekap_pager"></div>
+      </div>
+    </div>
+
+    <!-- Sub-region 4c: Detail per kode supplier per bulan (MONYYYY) -->
+    <div class="dmi-tabpanel" id="tab_bulan" role="tabpanel">
+      <div class="dmi-report">
+        <div class="dmi-toolbar"><button class="dmi-btn">Actions &#9662;</button></div>
+        <div class="dmi-table-wrap">
+          <table class="dmi-table">
+            <thead>
+              <tr>
+                <th class="c" style="width:14%">Supplier Number</th>
+                <th class="c">Supplier Name</th>
+                <th class="c" style="width:12%">Bulan</th>
+                <th class="c" style="width:16%">Total Dokumen Upload</th>
+                <th class="c" style="width:20%">Total Amount</th>
+              </tr>
+            </thead>
+            <tbody id="bulan_body"></tbody>
+          </table>
+        </div>
+        <div class="dmi-pager" id="bulan_pager"></div>
+      </div>
+    </div>
+
+    </div><!-- /dmi-panel-body -->
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== APEX Region 5: Inline Dialog (popup detail PO Success / PO Failed) ===== -->
+<div class="dmi-overlay" id="dlg_overlay" aria-hidden="true">
+  <div class="dmi-dialog" role="dialog" aria-modal="true" aria-labelledby="dlg_title" id="dlg_box">
+    <div class="dmi-dialog-head">
+      <div><h2 id="dlg_title"></h2><div class="sub" id="dlg_sub"></div></div>
+      <button class="close" id="dlg_close" aria-label="Tutup">&times;</button>
+    </div>
+    <div class="dmi-dialog-tools">
+      <input type="search" id="dlg_search" placeholder="Cari No PO, supplier, invoice...">
+      <button class="dmi-btn">Actions &#9662;</button>
+    </div>
+    <div class="dmi-dialog-body">
+      <table class="dmi-table">
+        <thead id="dlg_head"></thead>
+        <tbody id="dlg_body"></tbody>
+      </table>
+    </div>
+    <div class="dmi-dialog-foot"><span id="dlg_count"></span><span id="dlg_total"></span></div>
+  </div>
+</div>
+
+<script>
+/* Mockup: ketiga tab dihitung dari satu sumber data (PER_BULAN, di bawah),
+   sesuai filter Bulan/Tahun. Di APEX diganti query SQL pada tiap Interactive Report. */
+const fmt = n => n.toLocaleString('en-US');
+const emptyRow = (cols, msg) =>
+  `<tr><td colspan="${cols}" class="c" style="padding:24px;color:var(--dmi-muted)">${msg}</td></tr>`;
+const EMPTY_MSG = 'Tidak ada data untuk periode ini';
+
+/* Tab Per Kode Supplier: GROUP BY kode supplier, urut amount terbesar */
+function renderDetail(rows){
+  const map = new Map();
+  rows.forEach(([no,name,,amt,doc]) => {
+    const a = map.get(no) || {no, name, doc:0, amt:0};
+    a.doc += doc; a.amt += amt || 0; map.set(no, a);
+  });
+  const list = [...map.values()].sort((a,b) => b.amt - a.amt || b.doc - a.doc);
+  const body = document.getElementById('detail_body');
+  document.getElementById('badge_kode').textContent = list.length;
+  if(!list.length){ body.innerHTML = emptyRow(4, EMPTY_MSG); document.getElementById('detail_pager').textContent = ''; return; }
+  const tDoc = list.reduce((s,a)=>s+a.doc,0), tAmt = list.reduce((s,a)=>s+a.amt,0);
+  body.innerHTML = list.map(a =>
+    `<tr><td class="r">${a.no}</td><td>${a.name}</td><td class="c">${fmt(a.doc)}</td><td>${a.amt ? 'Rp. ' + fmt(a.amt) : '-'}</td></tr>`).join('') +
+    `<tr class="total"><td></td><td>GRAND TOTAL</td><td class="c">${fmt(tDoc)}</td><td>Rp. ${fmt(tAmt)}</td></tr>`;
+  document.getElementById('detail_pager').textContent = `1 - ${list.length + 1}`;
+}
+
+/* Pemetaan kode supplier -> grup supplier.
+   Di APEX sebaiknya pakai kolom grup/parent supplier di tabel master,
+   bukan dari nama, lalu GROUP BY kolom tersebut. */
+const GROUPS = [
+  {key:'UNILEVER', name:'UNILEVER INDONESIA TBK, PT'},
+  {key:'COCA',     name:'COCA COLA DISTRIBUTION INDONESIA'},
+  {key:'UNIVENUS', name:'THE UNIVENUS, PT-'},
+  {key:'SAYAPMAS', name:'SAYAP MAS UTAMA, PT'}
+];
+
+/* Tab Per Supplier: GROUP BY grup supplier, urut amount terbesar */
+function renderRekap(rows){
+  const agg = GROUPS.map(g => ({name:g.name, doc:0, amt:0}));
+  rows.forEach(([, name, , amt, doc]) => {
+    const i = GROUPS.findIndex(g => name.replace(/[-\s]/g,'').toUpperCase().includes(g.key));
+    if(i > -1){ agg[i].doc += doc; agg[i].amt += amt || 0; }
+  });
+  const list = agg.filter(a => a.doc > 0).sort((a,b) => b.amt - a.amt || b.doc - a.doc);
+  const body = document.getElementById('rekap_body');
+  document.getElementById('badge_rekap').textContent = list.length;
+  if(!list.length){ body.innerHTML = emptyRow(3, EMPTY_MSG); document.getElementById('rekap_pager').textContent = ''; return; }
+  const tDoc = list.reduce((s,a)=>s+a.doc,0), tAmt = list.reduce((s,a)=>s+a.amt,0);
+  body.innerHTML = list.map(a =>
+    `<tr><td>${a.name}</td><td class="r">${fmt(a.doc)}</td><td>${a.amt ? 'Rp. ' + fmt(a.amt) : '-'}</td></tr>`).join('') +
+    `<tr class="total"><td>GRAND TOTAL</td><td class="r">${fmt(tDoc)}</td><td>Rp. ${fmt(tAmt)}</td></tr>`;
+  document.getElementById('rekap_pager').textContent = `1 - ${list.length + 1}`;
+}
+
+/* Data contoh per bulan. Format: [kode, nama, bulan (MONYYYY), amount, dokumen]. null = amount kosong, tampil "-". */
+const PER_BULAN = [
+  ["2378", "UNILEVER INDONESIA TBK, PT", "JUL2026", 21302963649, 337],
+  ["2378", "UNILEVER INDONESIA TBK, PT", "AUG2026", 19852335793, 353],
+  ["2378", "UNILEVER INDONESIA TBK, PT", "SEP2026", 19826980498, 374],
+  ["12552", "UNILEVER INDONESIA, PT-SBY", "JUL2026", 13312716385, 232],
+  ["12552", "UNILEVER INDONESIA, PT-SBY", "AUG2026", 11625689492, 196],
+  ["12552", "UNILEVER INDONESIA, PT-SBY", "SEP2026", 9168008096, 170],
+  ["12552", "UNILEVER INDONESIA, PT-SBY", "OCT2026", 6284770094, 145],
+  ["2378", "UNILEVER INDONESIA TBK, PT", "OCT2026", 6169421629, 60],
+  ["6000000967", "COCA-COLA DIST. IND., PT", "SEP2026", 5990663315, 1971],
+  ["967", "COCA COLA DISTRIBUTION INDONESIA", "SEP2026", 4715234500, 2503],
+  ["967", "COCA COLA DISTRIBUTION INDONESIA", "OCT2026", 3792443394, 646],
+  ["6000000967", "COCA-COLA DIST. IND., PT", "OCT2026", 3297386022, 461],
+  ["6000000967", "COCA-COLA DIST. IND., PT", "AUG2026", 1988063728, 331],
+  ["41840", "UNILEVER INDONESIA TBK, PT (UFS)", "SEP2026", 513203591, 44],
+  ["41840", "UNILEVER INDONESIA TBK, PT (UFS)", "AUG2026", 376077679, 32],
+  ["300040731", "THE UNIVENUS, PT-", "OCT2026", 244558709, 7],
+  ["300040731", "THE UNIVENUS, PT-", "SEP2026", 220988742, 5],
+  ["967", "COCA COLA DISTRIBUTION INDONESIA", "AUG2026", 162036761, 275],
+  ["41840", "UNILEVER INDONESIA TBK, PT (UFS)", "JUL2026", 100707140, 12],
+  ["300040730", "THE UNIVENUS, PT-SBY", "OCT2026", 90759283, 6],
+  ["41840", "UNILEVER INDONESIA TBK, PT (UFS)", "OCT2026", 78498291, 8],
+  ["33825", "COCA-COLA DIST. IND., PT-HD", "SEP2026", 72023100, 28],
+  ["6200000967", "COCA-COLA DIST IND., PT.", "SEP2026", 65114281, 10],
+  ["100033825", "COCA-COLA DIST. IND.,PT", "OCT2026", 18590434, 8],
+  ["33825", "COCA-COLA DIST. IND., PT-HD", "OCT2026", 16402624, 15],
+  ["33825", "COCA-COLA DIST. IND., PT-HD", "AUG2026", 7772541, 5],
+  ["46543", "UNILEVER INDONESIA TBK,PT", "AUG2026", 7092001, 2],
+  ["100033825", "COCA-COLA DIST. IND.,PT", "SEP2026", 4531634, 5],
+  ["6500000967", "COCA-COLA DIST IND,PT", "SEP2026", 2252240, 10],
+  ["40731", "THE UNIVENUS, PT", "OCT2026", 744626, 1],
+  ["6500000967", "COCA-COLA DIST IND,PT", "OCT2026", 62699, 1]
+];
+
+const MON_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+/* Baris PER_BULAN yang lolos filter Bulan/Tahun.
+   Di APEX: WHERE (:P1_MONTH IS NULL OR ...) AND (:P1_YEAR IS NULL OR ...) di ketiga IR. */
+function filteredRows(){
+  const fm = document.getElementById('P1_MONTH').value, fy = document.getElementById('P1_YEAR').value;
+  return PER_BULAN.filter(([, , bln]) => {
+    const m = bln.slice(0,3), y = bln.slice(3);          /* "JUL2026" -> "JUL", "2026" */
+    const mm = String(MON_EN.indexOf(m[0] + m.slice(1).toLowerCase()) + 1).padStart(2,'0');
+    return (!fm || mm === fm) && (!fy || y === fy);
+  });
+}
+
+/* Tab Per Bulan: baris apa adanya */
+function renderBulan(rows){
+  let tDoc = 0, tAmt = 0;
+  if(!rows.length){
+    document.getElementById('bulan_body').innerHTML = emptyRow(5, EMPTY_MSG);
+    document.getElementById('bulan_pager').textContent = '';
+    document.getElementById('badge_bulan').textContent = 0;
+    return;
+  }
+  document.getElementById('bulan_body').innerHTML = rows.map(([no,name,bln,amt,doc]) => {
+    tDoc += doc; tAmt += amt || 0;
+    return `<tr><td class="r">${no}</td><td>${name}</td><td class="c">${bln}</td>
+      <td class="c">${fmt(doc)}</td><td>${amt == null ? '-' : 'Rp. ' + fmt(amt)}</td></tr>`;
+  }).join('') +
+  `<tr class="total"><td></td><td>GRAND TOTAL</td><td></td><td class="c">${fmt(tDoc)}</td><td>Rp. ${fmt(tAmt)}</td></tr>`;
+  document.getElementById('bulan_pager').textContent = `1 - ${rows.length + 1}`;
+  document.getElementById('badge_bulan').textContent = rows.length;
+}
+
+function applyFilter(){
+  const fm = document.getElementById('P1_MONTH').value, fy = document.getElementById('P1_YEAR').value;
+  const label = [fm ? BULAN_ID[+fm - 1] : (fy ? 'Semua Bulan' : ''), fy].filter(Boolean).join(' ');
+  document.getElementById('period_chip').textContent = 'Periode: ' + (label || 'Semua');
+  document.getElementById('btn_reset').hidden = !(fm || fy);
+  renderAll();     /* di APEX: Dynamic Action Refresh ketiga IR */
+}
+
+function renderAll(){
+  const rows = filteredRows();
+  renderRekap(rows);
+  renderDetail(rows);
+  renderBulan(rows);
+}
+
+/* ===== Data contoh popup Daily Progress (dummy) =====
+   Di APEX diganti query dari tabel yang sama dengan menu
+   "Data PO Success" / "Data PO Failed", difilter tanggal hari ini. */
+const SUPPLIERS = [...new Map(PER_BULAN.map(d => [d[0], [d[0], d[1]]])).values()];
+function seeded(seed){ return () => (seed = (seed * 9301 + 49297) % 233280) / 233280; }
+
+function makePO(n, ok, rnd){
+  const s = SUPPLIERS[Math.floor(rnd() * SUPPLIERS.length)];
+  const h = 7 + Math.floor(rnd() * 10), m = Math.floor(rnd() * 60);
+  return {
+    po: '41000' + String(258000 + n * 37).padStart(6,'0'),
+    supNo: s[0], supName: s[1],
+    inv: 'INV/' + String(10 + n).padStart(4,'0') + '/X/2026',
+    jam: `15-Oct-26 ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`,
+    amt: Math.round((2 + rnd() * 400) * 1e6),
+    ok
+  };
+}
+const rS = seeded(7), rF = seeded(42);
+const PO_SUCCESS = Array.from({length:100}, (_,i) => makePO(i+1, true, rS));
+const FAIL_REASON = ['Nominal invoice tidak sesuai PO','Faktur pajak tidak terbaca','Nomor PO tidak ditemukan',
+                     'Dokumen RGN belum diupload','Invoice duplikat'];
+const PO_FAILED = Array.from({length:5}, (_,i) => ({...makePO(200+i, false, rF), reason: FAIL_REASON[i]}));
+
+const DLG = {
+  success:{title:'Detail PO Success Upload', cls:'dmi-blue', data:PO_SUCCESS,
+           cols:['No','No PO','Supplier Number','Supplier Name','No Invoice','Waktu Upload','Amount','Status']},
+  failed: {title:'Detail PO Failed Upload',  cls:'dmi-red',  data:PO_FAILED,
+           cols:['No','No PO','Supplier Number','Supplier Name','No Invoice','Waktu Upload','Amount','Keterangan Gagal']}
+};
+let dlgKey = null, lastFocus = null;
+
+function renderDialog(){
+  const cfg = DLG[dlgKey], q = document.getElementById('dlg_search').value.trim().toLowerCase();
+  const rows = cfg.data.filter(r => !q || [r.po,r.supNo,r.supName,r.inv,r.reason||''].join(' ').toLowerCase().includes(q));
+  document.getElementById('dlg_head').innerHTML =
+    '<tr>' + cfg.cols.map(c => `<th class="c">${c}</th>`).join('') + '</tr>';
+  document.getElementById('dlg_body').innerHTML = rows.length ? rows.map((r,i) => `<tr>
+      <td class="c">${i+1}</td><td>${r.po}</td><td class="r">${r.supNo}</td><td>${r.supName}</td>
+      <td>${r.inv}</td><td class="c">${r.jam}</td><td class="r">Rp. ${fmt(r.amt)}</td>
+      <td>${r.ok ? '<span class="dmi-pill ok">Success</span>' : `<span class="dmi-pill err">Failed</span> ${r.reason}`}</td>
+    </tr>`).join('')
+    : `<tr><td colspan="${cfg.cols.length}" class="c" style="padding:24px;color:var(--dmi-muted)">Data tidak ditemukan</td></tr>`;
+  document.getElementById('dlg_count').textContent = `Menampilkan ${rows.length} dari ${cfg.data.length} PO`;
+  document.getElementById('dlg_total').textContent = `Total Amount: Rp. ${fmt(rows.reduce((s,r)=>s+r.amt,0))}`;
+}
+
+function openDialog(key, trigger){
+  dlgKey = key; lastFocus = trigger;
+  const cfg = DLG[key], box = document.getElementById('dlg_box');
+  box.className = 'dmi-dialog ' + cfg.cls;
+  document.getElementById('dlg_title').textContent = cfg.title;
+  document.getElementById('dlg_sub').textContent = `Daily progress · ${new Date(2026,9,15).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}`;
+  document.getElementById('dlg_search').value = '';
+  renderDialog();
+  const ov = document.getElementById('dlg_overlay');
+  ov.classList.add('open'); ov.setAttribute('aria-hidden','false');
+  document.getElementById('dlg_search').focus();
+}
+function closeDialog(){
+  const ov = document.getElementById('dlg_overlay');
+  ov.classList.remove('open'); ov.setAttribute('aria-hidden','true');
+  if(lastFocus) lastFocus.focus();
+}
+
+document.querySelectorAll('.dmi-card.is-link').forEach(card => {
+  card.addEventListener('click', () => openDialog(card.dataset.detail, card));
+  card.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openDialog(card.dataset.detail, card); } });
+});
+document.getElementById('dlg_close').addEventListener('click', closeDialog);
+document.getElementById('dlg_overlay').addEventListener('click', e => { if(e.target.id === 'dlg_overlay') closeDialog(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && document.getElementById('dlg_overlay').classList.contains('open')) closeDialog(); });
+document.getElementById('dlg_search').addEventListener('input', renderDialog);
+
+/* Perpindahan tab (di APEX ditangani otomatis oleh Tabs Container) */
+document.querySelectorAll('.dmi-tab').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.dmi-tab').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('.dmi-tabpanel').forEach(p => p.classList.toggle('active', p.id === btn.dataset.target));
+}));
+
+function fillFilters(){
+  const m = document.getElementById('P1_MONTH');
+  BULAN_ID.forEach((n,i)=> m.add(new Option(n, String(i+1).padStart(2,'0'))));
+  const y = document.getElementById('P1_YEAR'), now = 2026;
+  for(let yr = now; yr >= now - 4; yr--) y.add(new Option(yr, yr));
+  m.addEventListener('change', applyFilter);
+  y.addEventListener('change', applyFilter);
+  document.getElementById('btn_reset').addEventListener('click', () => { m.value = ''; y.value = ''; applyFilter(); });
+}
+
+fillFilters();
+renderAll();
+</script>
+</body>
+</html>
